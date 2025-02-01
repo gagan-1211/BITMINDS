@@ -58,7 +58,7 @@ bash
 Verify
 Run
 Copy code
-git clone https://github.com/yourusername/home-buddy.git
+git clone https://github.com/gagan-1211/BITMINDS.git
 
 
 
