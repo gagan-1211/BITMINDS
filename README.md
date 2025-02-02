@@ -92,7 +92,7 @@ cd home-buddy
 🚀 **Gagan Nadiger** - [GitHub](https://github.com/gagan-1211)\
 🚀 **Priya Patil** - [GitHub](https://github.com/patilpriyaa)\
 🚀 **Madhuri** - [GitHub](https://github.com/madhurii16)\
-🚀 **Abhishek Ankalkoti** - [GitHub](https://github.com/Abhi-Ankalkoti)
+🚀 **Mahabelashwar Ankalkoti** - [GitHub](https://github.com/Abhi-Ankalkoti)
 
 ---
 
