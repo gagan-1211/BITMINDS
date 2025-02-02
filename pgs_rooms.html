@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PGs & Rented Rooms - Home Buddy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+    background-color: #121212; /* Dark background */
+    color: #e0e0e0; /* Light text color for readability */
+}
+
+.filter-input {
+    transition: all 0.3s ease;
+    background-color: #333; /* Dark input background */
+    color: #e0e0e0; /* Light text color */
+    border: 1px solid #444; /* Slightly lighter border */
+}
+
+.filter-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    background-color: #222; /* Focus background color */
+}
+
+.card {
+    transition: transform 0.2s;
+    border-radius: 10px; /* Rounded corners for cards */
+    overflow: hidden; /* Prevent overflow */
+    background-color: #2a2a2a; /* Dark card background */
+    border: 1px solid #444; /* Lighter border for cards */
+}
+
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.card-title {
+    color: #e0e0e0; /* Light title text */
+}
+
+.card-text {
+    color: #b0b0b0; /* Lighter text for card descriptions */
+}
+
+#map {
+    height: 300px;
+    background-color: #2a2a2a; /* Dark map background */
+    border-radius: 10px; /* Rounded corners */
+    margin-top: 20px; /* Space above the map */
+}
+
+.compare-section {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.compare-card {
+    border: 1px solid #444;
+    padding: 20px;
+    width: 48%;
+    border-radius: 10px; /* Rounded corners for comparison cards */
+    background-color: #2a2a2a; /* Dark background for comparison cards */
+}
+
+.selected {
+    background-color: #007bff !important;
+    color: white !important;
+}
+
+.pg-image {
+    width: 100%; /* Make images responsive */
+    height: 200px; /* Fixed height for images */
+    object-fit: cover; /* Cover the area without distortion */
+}
+
+.navbar {
+    background-color: #1f1f1f; /* Dark navbar background */
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: #151414; /* Light color for navbar links */
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+    color: #007bff; /* Hover effect color */
+}
+
+.navbar-brand {
+    color: #131212; /* Light color for brand name */
+}
+
+.navbar-toggler-icon {
+    background-color: #e0e0e0; /* Light color for toggler icon */
+}
+
+button {
+    background-color: #007bff; /* Primary button color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+button:disabled {
+    background-color: #444; /* Disabled button color */
+    cursor: not-allowed;
+}
+
+.modal-content {
+    background-color: #2a2a2a; /* Dark modal background */
+    color: #e0e0e0; /* Light text inside the modal */
+}
+
+.modal-header {
+    border-bottom: 1px solid #444; /* Border for modal header */
+}
+
+.modal-footer {
+    border-top: 1px solid #444; /* Border for modal footer */
+}
+
+.navbar-toggler {
+    border-color: #444; /* Dark border for the toggler */
+}
+
+
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">
+            <img src="logo.png" alt="Home Buddy Logo" style="height: 40px; margin-right: 10px;"> Home Buddy
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link active" href="pgs_rooms.html">PGs & Rooms</a></li>
+                <li class="nav-item"><a class="nav-link" href="food_mess.html">Food Mess</a></li>
+                <li class="nav-item"><a class="nav-link" href="coaching_centers.html">Coaching Centers</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Owner Options
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="owner.html">List Your Service</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a class="nav-link btn btn-primary text-white" href="login.html">Login/Signup</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+    <div class="container py-5">
+        <h1 class="text-center mb-4">PGs & Rented Rooms</h1>
+        
+        <!-- Filter Inputs -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <input type="text" class="form-control filter-input" id="searchBar" placeholder="Search by name" oninput="filterPGs()">
+            </div>
+            <div class="col-md-4">
+                <select class="form-select filter-input" id="locationSelect" onchange="filterPGs()">
+                    <option selected>Choose location</option>
+                    <option value="Shrinagar circle">Shrinagar circle</option>
+                    <option value="Near KCD College">Near KCD College</option>
+                    <option value="Near Railway Station">Near Railway Station</option>
+                    <option value="Opp. Basavanna Temple">Opp. Basavanna Temple</option>
+                    <option value="Kelgeri">Kelgeri</option>
+                    <option value="Sattur">Sattur</option>
+                    <option value="Vidyagiri">Vidyagiri</option>
+                    <option value="Saptapur">Saptapur</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select filter-input" id="priceSelect" onchange="filterPGs()">
+                    <option selected>Price Range</option>
+                    <option value="under3000">Under ₹3000</option>
+                    <option value="3000to5000">₹3000 - ₹5000</option>
+                    <option value="above5000">Above ₹5000</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row" id="pg-listings">
+            <!-- PG listings will be dynamically inserted here -->
+        </div>
+
+        <!-- Compare Button -->
+        <div class="text-center my-4">
+            <button class="btn btn-primary" id="compareButton" onclick="showComparison()">Compare Selected PGs</button>
+            <button class="btn btn-danger" id="deselectButton" onclick="deselectAll()">Deselect All</button>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="compare-section" id="compare-section" style="display: none;">
+            <div class="compare-card" id="compareCard1"></div>
+            <div class="compare-card" id="compareCard2"></div>
+        </div>
+
+        <!-- Map Placeholder -->
+        <div id="map">
+            <div class="text-center">
+                <h5>Map of PG Locations</h5>
+                <p>Map integration will be added here.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for PG Details -->
+    <div class="modal fade" id="pgDetailsModal" tabindex="-1" aria-labelledby="pgDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pgDetailsModalLabel">PG Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="pgDetailsContent">
+                    <!-- PG details will be dynamically inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedPGs = [];
+        let pgLocations = [];
+
+        // Fetch PG data from JSON file
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("pg_data.json")  // Specify the path where pg_data.json is stored
+                .then(response => response.json())  // Parse the JSON response
+                .then(data => {
+                    displayPGs(data);  // Call function to display the PGs
+                    pgLocations = data; // Store PG locations for map markers
+                    initMap(); // Initialize the map after fetching data
+                })
+                .catch(error => console.error("Error loading data:", error));  // Handle errors
+        });
+
+        function displayPGs(pgList) {
+            const pgContainer = document.getElementById("pg-listings");
+            pgContainer.innerHTML = "";  // Clear any existing PG listings
+
+            pgList.forEach((pg, index) => {
+                let pgCard = `
+                    <div class="col-md-4 mb-4 pg-card" data-location="${pg.Location}" data-price="${pg['Price (INR)']}">
+                        <div class="card">
+                            <img src="${pg.Image}" class="card-img-top pg-image" alt="${pg['PG Name']}">
+                            <div class="card-body">
+                                <h5 class="card-title">${pg['PG Name'] || 'No Name Available'}</h5>
+                                <p class="card-text"><strong>Occupation Type:</strong> ${pg['Occupation type'] || 'N/A'}</p>
+                                <p class="card-text"><strong>Price:</strong> ₹${pg['Price (INR)'] || 'N/A'}</p>
+                                <p class="card-text"><strong>Nearby Landmark:</strong> ${pg['Nearby Landmark'] || 'N/A'}</p>
+                                <input type="checkbox" id="compareCheckbox${index}" onchange="updateSelectedPGs(${index})"> Compare
+                                <button class="btn btn-primary" onclick="showDetails(${index})">View Details</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                pgContainer.innerHTML += pgCard;  // Append PG card to the container
+            });
+        }
+
+        function showDetails(index) {
+            fetch("pg_data.json")
+                .then(response => response.json())
+                .then(data => {
+                    const pg = data[index];
+                    const pgDetailsContent = document.getElementById("pgDetailsContent");
+                    pgDetailsContent.innerHTML = `
+                        <h5>${pg['PG Name'] || 'No Name Available'}</h5>
+                        <p><strong>Location:</strong> <a href="${pg.gmap_link}" target="_blank">${pg.Location}</a></p>
+                        <p><strong>Owner's Details:</strong> ${pg['Owner’s Details'] || 'N/A'}</p>
+                        <p><strong>Single/Shared Rooms:</strong> ${pg['Single/Shared Rooms'] || 'N/A'}</p>
+                        <p><strong>Max people in 1 room:</strong> ${pg['Max people in 1 room'] || 'N/A'}</p>
+                        <p><strong>Meals:</strong> ${pg['Meals'] || 'N/A'}</p>
+                        <p><strong>Safety and Security:</strong> ${pg['Safety and security'] || 'N/A'}</p>
+                        <p><strong>WiFi:</strong> ${pg['WiFi'] || 'N/A'}</p>
+                        <p><strong>Parking:</strong> ${pg['Parking'] || 'N/A'}</p>
+                        <p><strong>Power Backup:</strong> ${pg['Power backup'] || 'N/A'}</p>
+                        <p><strong>Nearby Essentials:</strong> ${pg['Nearby Essentials'] || 'N/A'}</p>
+                        <p><strong>Extra Feature:</strong> ${pg['Extra Feature'] || 'N/A'}</p>
+                    `;
+                    const modal = new bootstrap.Modal(document.getElementById('pgDetailsModal'));
+                    modal.show();
+                })
+                .catch(error => console.error("Error loading PG details:", error));
+        }
+
+        function updateSelectedPGs(index) {
+            const checkbox = document.getElementById(`compareCheckbox${index}`);
+            fetch("pg_data.json")
+                .then(response => response.json())
+                .then(data => {
+                    const pg = data[index];
+                    if (checkbox.checked) {
+                        if (selectedPGs.length < 2) {
+                            selectedPGs.push(pg);
+                        } else {
+                            alert("You can only compare two PGs at a time. Deselect one to select another.");
+                            checkbox.checked = false; // Uncheck the checkbox if limit exceeded
+                        }
+                    } else {
+                        selectedPGs = selectedPGs.filter(item => item !== pg);
+                    }
+                    updateComparison(); // Ensure comparison is updated after selection changes
+                })
+                .catch(error => console.error("Error loading comparison data:", error));
+        }
+
+        function updateComparison() {
+            if (selectedPGs.length < 2) {
+                document.getElementById("compare-section").style.display = "none";
+                return;
+            }
+
+            const compareCard1 = document.getElementById("compareCard1");
+            const compareCard2 = document.getElementById("compareCard2");
+
+            compareCard1.innerHTML = `
+                <h4>${selectedPGs[0]['PG Name'] || 'No Name Available'}</h4>
+                <p>Location: <a href="${selectedPGs[0].gmap_link}" target="_blank">${selectedPGs[0].Location}</a></p>
+                <p>Owner's Details: ${selectedPGs[0]['Owner’s Details'] || 'N/A'}</p>
+                <p>Price: ₹ ${selectedPGs[0]['Price (INR)'] || 'N/A'}</p>
+                <p>Meals: ${selectedPGs[0]['Meals'] || 'N/A'}</p>
+            `;
+            compareCard2.innerHTML = `
+                <h4>${selectedPGs[1]['PG Name'] || 'No Name Available'}</h4>
+                <p>Location: <a href="${selectedPGs[1].gmap_link}" target="_blank">${selectedPGs[1].Location}</a></p>
+                <p>Owner's Details: ${selectedPGs[1]['Owner’s Details'] || 'N/A'}</p>
+                <p>Price: ₹${selectedPGs[1]['Price (INR)'] || 'N/A'}</p>
+                <p>Meals: ${selectedPGs[1]['Meals'] || 'N/A'}</p>
+            `;
+
+            document.getElementById("compare-section").style.display = "flex";
+        }
+
+        function showComparison() {
+            if (selectedPGs.length < 2) {
+                alert("Please select two PGs to compare.");
+            } else {
+                updateComparison();
+            }
+        }
+
+        function deselectAll() {
+            selectedPGs = [];
+            document.querySelectorAll("input[type=checkbox]").forEach(checkbox => {
+                checkbox.checked = false; // Uncheck all checkboxes
+            });
+            document.getElementById("compare-section").style.display = "none"; // Hide comparison section
+        }
+
+        function filterPGs() {
+            const searchInput = document.getElementById('searchBar').value.toLowerCase();
+            const locationFilter = document.getElementById('locationSelect').value;
+            const priceFilter = document.getElementById('priceSelect').value;
+            const pgCards = document.querySelectorAll('.pg-card');
+
+            pgCards.forEach(card => {
+                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                const location = card.getAttribute('data-location');
+                const price = card.getAttribute('data-price');
+
+                const matchesSearch = title.includes(searchInput);
+                const matchesLocation = locationFilter === 'Choose location' || location === locationFilter;
+                const matchesPrice = priceFilter === 'Price Range' || price === "Unknown" || 
+                    (priceFilter === 'under3000' && parseInt(price.replace(/,/g, ''), 10) < 3000) || 
+                    (priceFilter === '3000to5000' && parseInt(price.replace(/,/g, ''), 10) >= 3000 && parseInt(price.replace(/,/g, ''), 10) <= 5000) || 
+                    (priceFilter === 'above5000' && parseInt(price.replace(/,/g, ''), 10) > 5000);
+
+                if (matchesSearch && matchesLocation && matchesPrice) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function initMap() {
+            const mapOptions = {
+                center: { lat: 15.4668, lng: 75.0149 }, // Centered on Dharwad
+                zoom: 12,
+            };
+            const map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+            pgLocations.forEach(pg => {
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ 'address': pg.Location }, (results, status) => {
+                    if (status === 'OK' && results[0]) {
+                        const marker = new google.maps.Marker({
+                            position: results[0].geometry.location,
+                            map: map,
+                            title: pg['PG Name'] || 'No Name Available',
+                        });
+
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: `
+                                <div>
+                                    <strong>${pg['PG Name'] || 'No Name Available'}</strong><br>
+                                    <a href="${pg.gmap_link}" target="_blank">View on Google Maps</a>
+                                </div>
+                            `,
+                        });
+
+                        marker.addListener('click', () => {
+                            infoWindow.open(map, marker);
+                        });
+                    } else {
+                        console.error('Geocode was not successful for the following reason: ' + status);
+                    }
+                });
+            });
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGpRW1wSEHQ1q6-c5bVUYXLAADkBAiflQ&callback=initMap" async defer></script>
+</body>
+</html>

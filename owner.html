@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Page</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        form {
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            text-align: left;
+        }
+        label, input, textarea {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+        input, textarea {
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h2>Owner Details Form</h2>
+    <form id="ownerForm">
+        <label for="name">Owner Name:</label>
+        <input type="text" id="name" required>
+
+        <label for="phone">Phone Number:</label>
+        <input type="tel" id="phone" required>
+
+        <label for="location">Location:</label>
+        <input type="text" id="location" required>
+
+        <label for="features">Features:</label>
+        <textarea id="features" required></textarea>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.getElementById("ownerForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            
+            let ownerName = document.getElementById("name").value;
+            let phone = document.getElementById("phone").value;
+            let location = document.getElementById("location").value;
+            let features = document.getElementById("features").value;
+            
+            let fileName = "owner_details.xlsx";
+            let sheetName = "ProvidedSheetName";
+            
+            let wb;
+            try {
+                const file = await fetch(fileName);
+                const arrayBuffer = await file.arrayBuffer();
+                wb = XLSX.read(arrayBuffer, { type: "array" });
+            } catch (error) {
+                wb = XLSX.utils.book_new();
+            }
+
+            let ws = wb.Sheets[sheetName] || XLSX.utils.aoa_to_sheet([["Owner Name", "Phone Number", "Location", "Features"]]);
+            let newRow = [ownerName, phone, location, features];
+            XLSX.utils.sheet_add_aoa(ws, [newRow], { origin: -1 });
+            wb.Sheets[sheetName] = ws;
+
+            XLSX.writeFile(wb, fileName);
+            alert("Data saved successfully!");
+            window.location.href = "index.html";
+        });
+    </script>
+</body>
+</html>

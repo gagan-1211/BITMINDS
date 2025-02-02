@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Mess Locator - Home Buddy</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom Styles -->
+    <style>
+        body {
+            background: linear-gradient(135deg, #1c1c1c, #000000);
+            color: #fff;
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .background-design {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .navbar {
+            background-color: #000;
+            border-bottom: 1px solid #444;
+        }
+        .navbar-brand, .nav-link {
+            color: #fff !important;
+        }
+        .navbar-brand img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .navbar .btn {
+            margin-left: 10px;
+        }
+
+        .filter-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-section .form-control,
+        .filter-section .form-select {
+            width: 50%;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            transition: transform 0.2s;
+            background-color: #222;
+            color: #fff;
+            border: none;
+        }
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .compare-section {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .compare-card {
+            border: 1px solid #444;
+            padding: 20px;
+            width: 48%;
+            background-color: #222;
+            color: #fff;
+        }
+        .btn-compare {
+            background-color: #007bff;
+            color: white;
+        }
+        .modal-content {
+            padding: 20px;
+            background-color: #222;
+            color: #fff;
+        }
+        #map {
+            height: 400px;
+            background-color: #333;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .center-btn-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body onload="fetchMesses()">
+    <div class="background-design"></div>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <img src="logo.png" alt="Home Buddy Logo">Home Buddy
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="pgs_rooms.html">PGs & Rooms</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="food_mess.html">Food Mess</a></li>
+                    <li class="nav-item"><a class="nav-link" href="coaching_centers.html">Coaching Centers</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Owner Options
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="owner.html">List Your Service</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link btn btn-outline-light" href="login.html">Login/Signup</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <h1 class="text-center mb-4">Food Mess Locator</h1>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <h5 class="text-center">Filters</h5>
+            <input type="text" class="form-control" id="searchBar" placeholder="Search for food messes..." oninput="filterMesses()">
+            
+            <select class="form-select" id="vegNonVeg" onchange="filterMesses()">
+                <option value="all">All</option>
+                <option value="veg">Veg</option>
+                <option value="non-veg">Non-Veg</option>
+            </select>
+
+            <select class="form-select" id="ratingSelect" onchange="filterMesses()">
+                <option value="all">All Ratings</option>
+                <option value="5">5 Stars</option>
+                <option value="4">4 Stars & Up</option>
+                <option value="3">3 Stars & Up</option>
+            </select>
+        </div>
+
+        <!-- Compare Button -->
+        <div class="center-btn-container">
+            <button class="btn btn-compare" data-bs-toggle="modal" data-bs-target="#compareModalFood">Compare Food Mess </button>
+            <button class="btn btn-danger" id="deselectButton" onclick="deselectAll()">Deselect All</button>
+        </div>
+        <br>
+        <!-- Compare Modal for Food Mess -->
+        <div class="modal fade" id="compareModalFood" tabindex="-1" aria-labelledby="compareModalFoodLabel" aria-hidden="true">
+            <div class="modal-dialog modal-sm"> <!-- Changed to modal-sm for smaller size -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="compareModalFoodLabel">Compare Food Mess </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="mess1Select">Select Food Mess 1:</label>
+                            <select class="form-select" id="mess1Select">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="mess2Select">Select Food Mess 2:</label>
+                            <select class="form-select" id="mess2Select">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="compareFoodMesses()">Compare</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Results Section -->
+        <div class="compare-section" id="compareSectionFood" style="display: none;">
+            <div class="compare-card" id="compareCardFood1"></div>
+            <div class="compare-card" id="compareCardFood2"></div>
+        </div>
+
+        <!-- Food Mess Cards -->
+        <div class="row" id="mess-listings">
+            <!-- Food Mess listings will be dynamically inserted here -->
+        </div>
+
+        <!-- Map Placeholder -->
+        <div id="map">
+            <h5 class="text-center">Map of Food Mess Locations</h5>
+        </div>
+
+        <!-- Details Modal -->
+        <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="detailsModalLabel">Food Mess Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="detailsModalContent">
+                        <!-- Food Mess details will be populated here -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center py-4 footer">
+            <div class="social-links mb-3">
+                <a href="#" class="mx-2"><i class="fab fa-facebook fa-2x"></i></a>
+                <a href="#" class="mx-2"><i class="fab fa-instagram fa-2x"></i></a>
+                <a href="#" class="mx-2"><i class="fab fa-twitter fa-2x"></i></a>
+                <a href="#" class="mx-2"><i class="fab fa-linkedin fa-2x"></i></a>
+            </div>
+            <p>&copy; 2025 Home Buddy. All rights reserved. <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a></p>
+        </footer>
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            let selectedMesses = [];
+            let messLocations = [];
+
+            // Fetch Food Mess data from JSON file
+            function fetchMesses() {
+                fetch("mess.json")  // Specify the path where mess.json is stored
+                    .then(response => response.json())
+                    .then(data => {
+                        displayMesses(data);  // Call function to display the Food Messes
+                        messLocations = data; // Store Food Mess locations for map markers
+                        initMap(); // Initialize the map after fetching data
+                        populateComparisonSelect(data); // Populate comparison select options
+                    })
+                    .catch(error => console.error("Error loading data:", error));  // Handle errors
+            }
+
+            function displayMesses(messList) {
+                const messContainer = document.getElementById("mess-listings");
+                messContainer.innerHTML = "";  // Clear any existing Food Mess listings
+
+                messList.forEach((mess, index) => {
+                    let messCard = `
+                        <div class="col-md-4 mb-4 mess-card" data-rating="${mess['Review & Ratings']}" data-type="${mess['Veg/Non-Veg']}">
+                            <div class="card">
+                                <img src="${mess.Images || 'https://via.placeholder.com/400x200'}" class="card-img-top" alt="${mess['Mess Name']}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${mess['Mess Name'] || 'No Name Available'}</h5>
+                                    <p class="card-text"><strong>Veg/Non-Veg:</strong> ${mess['Veg/Non-Veg'] || 'N/A'}</p>
+                                    <p class="card-text"><strong>Rating:</strong> ${mess['Review & Ratings'] || 'N/A'}</p>
+                                    <p class="card-text"><strong>Location:</strong> ${mess['Locations'] || 'N/A'}</p>
+                                    <input type="checkbox" id="compareCheckbox${index}" onchange="updateSelectedMesses(${index})"> Compare
+                                    <button class="btn btn-primary" onclick="showDetails(${index})">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    messContainer.innerHTML += messCard;  // Append Food Mess card to the container
+                });
+            }
+
+            function populateComparisonSelect(messList) {
+                const mess1Select = document.getElementById('mess1Select');
+                const mess2Select = document.getElementById('mess2Select');
+
+                messList.forEach((mess, index) => {
+                    let option = <option value="${index}">${mess['Mess Name']}</option>;
+                    mess1Select.innerHTML += option;
+                    mess2Select.innerHTML += option;
+                });
+            }
+
+            function showDetails(index) {
+                fetch("mess.json")
+                    .then(response => response.json())
+                    .then(data => {
+                        const mess = data[index];
+                        const detailsModalContent = document.getElementById('detailsModalContent');
+
+                        detailsModalContent.innerHTML = `
+                            <h5>${mess['Mess Name']}</h5>
+                            <p><strong>Veg/Non-Veg:</strong> ${mess['Veg/Non-Veg']}</p>
+                            <p><strong>Timings:</strong> ${mess['Timings']}</p>
+                            <p><strong>Self-Service/Served:</strong> ${mess['Self-Service/Served']}</p>
+                            <p><strong>Price:</strong> ${mess['Price (INR)']}</p>
+                            <p><strong>Location:</strong> <a href="${mess['gmap_url']}" target="_blank">View on Google Maps</a></p>
+                        `;
+                        const detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
+                        detailsModal.show(); // Show the modal with the details
+                    })
+                    .catch(error => console.error("Error loading Food Mess details:", error));
+            }
+
+            function updateSelectedMesses(index) {
+                const checkbox = document.getElementById(`compareCheckbox${index}`);
+
+                fetch("mess.json")
+                    .then(response => response.json())
+                    .then(data => {
+                        const mess = data[index];
+                        if (checkbox.checked) {
+                            if (selectedMesses.length < 2) {
+                                selectedMesses.push(mess);
+                            } else {
+                                alert("You can only compare two Food Messes at a time. Deselect one to select another.");
+                                checkbox.checked = false; // Uncheck the checkbox if limit exceeded
+                            }
+                        } else {
+                            selectedMesses = selectedMesses.filter(item => item !== mess);
+                        }
+                        updateComparison(); // Ensure comparison is updated after selection changes
+                    })
+                    .catch(error => console.error("Error loading comparison data:", error));
+            }
+
+            function updateComparison() {
+                if (selectedMesses.length < 2) {
+                    document.getElementById("compareSectionFood").style.display = "none";
+                    return;
+                }
+
+                const compareCardFood1 = document.getElementById("compareCardFood1");
+                const compareCardFood2 = document.getElementById("compareCardFood2");
+
+                compareCardFood1.innerHTML = `
+                    <h4>${selectedMesses[0]['Mess Name']}</h4>
+                    <p>Veg/Non-Veg: ${selectedMesses[0]['Veg/Non-Veg']}</p>
+                    <p>Rating: ${selectedMesses[0]['Review & Ratings']}</p>
+                    <p>Location: <a href="${selectedMesses[0]['gmap_url']}" target="_blank">View on Google Maps</a></p>
+                `;
+                compareCardFood2.innerHTML = `
+                    <h4>${selectedMesses[1]['Mess Name']}</h4>
+                    <p>Veg/Non-Veg: ${selectedMesses[1]['Veg/Non-Veg']}</p>
+                    <p>Rating: ${selectedMesses[1]['Review & Ratings']}</p>
+                    <p>Location: <a href="${selectedMesses[1]['gmap_url']}" target="_blank">View on Google Maps</a></p>
+                `;
+
+                document.getElementById("compareSectionFood").style.display = "flex";
+            }
+
+            function compareFoodMesses() {
+                if (selectedMesses.length < 2) {
+                    alert("Please select two Food Messes to compare.");
+                } else {
+                    updateComparison();
+                }
+            }
+
+            function deselectAll() {
+                selectedMesses = [];
+                document.querySelectorAll("input[type=checkbox]").forEach(checkbox => {
+                    checkbox.checked = false; // Uncheck all checkboxes
+                });
+                document.getElementById("compareSectionFood").style.display = "none"; // Hide comparison section
+            }
+
+            function filterMesses() {
+                const searchInput = document.getElementById('searchBar').value.toLowerCase();
+                const vegNonVegFilter = document.getElementById('vegNonVeg').value;
+                const ratingFilter = document.getElementById('ratingSelect').value;
+                const messCards = document.querySelectorAll('.mess-card');
+
+                messCards.forEach(card => {
+                    const title = card.querySelector('.card-title').textContent.toLowerCase();
+                    const rating = parseFloat(card.getAttribute('data-rating'));
+                    const type = card.getAttribute('data-type');
+
+                    const matchesSearch = title.includes(searchInput);
+                    const matchesVegNonVeg = vegNonVegFilter === 'all' || type.toLowerCase() === vegNonVegFilter;
+                    const matchesRating = ratingFilter === 'all' || (ratingFilter === '5' && rating === 5) || (ratingFilter === '4' && rating >= 4) || (ratingFilter === '3' && rating >= 3);
+
+                    if (matchesSearch && matchesVegNonVeg && matchesRating) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+
+            function initMap() {
+                const mapOptions = {
+                    center: { lat: 15.4668, lng: 75.0149 }, // Centered on Dharwad
+                    zoom: 12,
+                };
+                const map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+                messLocations.forEach(mess => {
+                    if (mess['gmap_url']) {
+                        const geocoder = new google.maps.Geocoder();
+                        geocoder.geocode({ 'address': mess['Locations'] }, (results, status) => {
+                            if (status === 'OK' && results[0]) {
+                                const marker = new google.maps.Marker({
+                                    position: results[0].geometry.location,
+                                    map: map,
+                                    title: mess['Mess Name'] || 'No Name Available',
+                                });
+
+                                const infoWindow = new google.maps.InfoWindow({
+                                    content: `
+                                        <div>
+                                            <strong>${mess['Mess Name'] || 'No Name Available'}</strong><br>
+                                            <a href="${mess['gmap_url']}" target="_blank">View on Google Maps</a>
+                                        </div>
+                                    `,
+                                });
+
+                                marker.addListener('click', () => {
+                                    infoWindow.open(map, marker);
+                                });
+                            } else {
+                                console.error('Geocode was not successful for the following reason: ' + status);
+                            }
+                        });
+                    }
+                });
+            }
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    </body>
+</html>

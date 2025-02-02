@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coaching Centers Locator - Home Buddy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+       body {
+    background-color: #121212; /* Dark background */
+    color: #e0e0e0; /* Light text for contrast */
+}
+
+.filter-input {
+    background-color: #1e1e1e; /* Darker input background */
+    color: #e0e0e0; /* Light text */
+    border: 1px solid #333;
+    transition: all 0.3s ease;
+}
+
+.filter-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.card {
+    background-color: #1e1e1e; /* Dark card background */
+    color: #e0e0e0; /* Light text */
+    transition: transform 0.2s;
+    border-radius: 10px; /* Rounded corners for cards */
+    overflow: hidden; /* Prevent overflow */
+    border: 1px solid #333;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+}
+
+#map {
+    height: 300px;
+    background-color: #292929; /* Dark gray background */
+    border-radius: 10px; /* Rounded corners */
+    margin-top: 20px; /* Space above the map */
+}
+
+.compare-section {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.compare-card {
+    background-color: #1e1e1e;
+    border: 1px solid #444;
+    padding: 20px;
+    width: 48%;
+    border-radius: 10px; /* Rounded corners for comparison cards */
+    color: #e0e0e0;
+}
+
+.mess-image {
+    width: 100%; /* Make images responsive */
+    height: 200px; /* Fixed height for images */
+    object-fit: cover; /* Cover the area without distortion */
+    border-radius: 10px;
+}
+
+.modal-content {
+    background-size: cover;
+    background-position: center;
+    background-color: #1e1e1e; /* Dark modal background */
+    color: white; /* Change to white for better readability */
+}
+
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">
+            <img src="logo.png" alt="Home Buddy Logo" height="40" class="me-2">
+            Home Buddy
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="pgs_rooms.html">PGs & Rooms</a></li>
+                <li class="nav-item"><a class="nav-link" href="food_mess.html">Food Mess</a></li>
+                <li class="nav-item"><a class="nav-link active" href="coaching_centers.html">Coaching Centers</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Owner Options
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="owner.html">List Your Service</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a class="nav-link btn btn-primary text-white" href="login.html">Login/Signup</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+    <div class="container py-5">
+        <h1 class="text-center mb-4">Coaching Centers Locator</h1>
+
+        <!-- Search and Filter Inputs -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <input type="text" class="form-control filter-input" id="searchBar" placeholder="Search by name" oninput="filterCenters()">
+            </div>
+            <div class="col-md-4">
+                <select class="form-select filter-input" id="locationSelect" onchange="filterCenters()">
+                    <option selected>Choose location</option>
+                    <option value="downtown">Downtown</option>
+                    <option value="suburbs">Suburbs</option>
+                    <option value="online">Online</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select filter-input" id="ratingSelect" onchange="filterCenters()">
+                    <option selected>Choose rating</option>
+                    <option value="all">All Ratings</option>
+                    <option value="5">5 Stars</option>
+                    <option value="4">4 Stars & Up</option>
+                    <option value="3">3 Stars & Up</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row" id="center-listings">
+            <!-- Coaching Center listings will be dynamically inserted here -->
+        </div>
+
+        <!-- Compare Button -->
+        <div class="text-center my-4">
+            <button class="btn btn-primary" id="compareButton" onclick="showComparison()">Compare Selected Centers</button>
+            <button class="btn btn-danger" id="deselectButton" onclick="deselectAll()">Deselect All</button>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="compare-section" id="compare-section" style="display: none;">
+            <div class="compare-card" id="compareCard1"></div>
+            <div class="compare-card" id="compareCard2"></div>
+        </div>
+
+        <!-- Map Placeholder -->
+        <div id="map">
+            <div class="text-center">
+                <h5>Map of Coaching Center Locations</h5>
+                <p>Map integration will be added here.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Coaching Center Details -->
+    <div class="modal fade" id="centerDetailsModal" tabindex="-1" aria-labelledby="centerDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" id="modalContent">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="centerDetailsModalLabel">Coaching Center Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="centerDetailsContent">
+                    <!-- Coaching Center details will be dynamically inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedCenters = [];
+        let centerLocations = [];
+
+        // Fetch Coaching Center data from JSON file
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("centers.json")  // Specify the path where centers.json is stored
+                .then(response => response.json())  // Parse the JSON response
+                .then(data => {
+                    displayCenters(data);  // Call function to display the Coaching Centers
+                    centerLocations = data; // Store Coaching Center locations for map markers
+                    initMap(); // Initialize the map after fetching data
+                })
+                .catch(error => console.error("Error loading data:", error));  // Handle errors
+        });
+
+        function displayCenters(centerList) {
+            const centerContainer = document.getElementById("center-listings");
+            centerContainer.innerHTML = "";  // Clear any existing Coaching Center listings
+
+            centerList.forEach((center, index) => {
+                if (center['Institute Name']) { // Only display centers with a name
+                    let centerCard = `
+                        <div class="col-md-4 mb-4 coaching-card" data-location="${center['Location']}" data-rating="${center['Reviews & Ratings']}">
+                            <div class="card">
+                                <img src="${center.Image || 'https://via.placeholder.com/400x200'}" class="card-img-top mess-image" alt="${center['Institute Name']}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${center['Institute Name'] || 'No Name Available'}</h5>
+                                    <p class="card-text"><strong>Courses:</strong> ${center['Courses & Streams'] || 'N/A'}</p>
+                                    <p class="card-text"><strong>Rating:</strong> ${center['Reviews & Ratings'] || 'N/A'}</p>
+                                    <p class="card-text"><strong>Location:</strong> ${center['Location'] || 'N/A'}</p>
+                                    <input type="checkbox" id="compareCheckbox${index}" onchange="updateSelectedCenters(${index})"> Compare
+                                    <button class="btn btn-primary" onclick="showDetails(${index})">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    centerContainer.innerHTML += centerCard;  // Append Coaching Center card to the container
+                }
+            });
+        }
+
+        function showDetails(index) {
+            fetch("centers.json")
+                .then(response => response.json())
+                .then(data => {
+                    const center = data[index];
+                    const centerDetailsContent = document.getElementById("centerDetailsContent");
+                    const modalContent = document.getElementById("modalContent");
+                    modalContent.style.backgroundImage = `url(${center.Image || 'https://via.placeholder.com/400x200'})`;
+
+                    modalContent.style.backgroundSize = 'cover';
+                    modalContent.style.backgroundPosition = 'center';
+                    
+                    centerDetailsContent.innerHTML = `
+                        <h5>${center['Institute Name'] || 'No Name Available'}</h5>
+                        <p><strong>Courses & Streams:</strong> ${center['Courses & Streams'] || 'N/A'}</p>
+                        <p><strong>Reviews & Ratings:</strong> ${center['Reviews & Ratings'] || 'N/A'}</p>
+                        <p><strong>Batches & Timings:</strong> ${center['Batches & Timings'] || 'N/A'}</p>
+                        <p><strong>Teacher Details:</strong> ${center['Teacher Details'] || 'N/A'}</p>
+                        <p><strong>Teaching Mode:</strong> ${center['Teaching mode'] || 'N/A'}</p>
+                        <p><strong>Per Class Strength:</strong> ${center['Per Class Strength'] || 'N/A'}</p>
+                        <p><strong>Mentorship:</strong> ${center['Mentorship'] || 'N/A'}</p>
+                        <p><strong>Scholarships Provided:</strong> ${center['Scholarships Provided'] || 'N/A'}</p>
+                        <p><strong>Contact:</strong> ${center['Contact'] || 'N/A'}</p>
+                        <p><strong>Location:</strong> <a href="${center['gmap url']}" target="_blank">View on Google Maps</a></p>
+                    `;
+                    const modal = new bootstrap.Modal(document.getElementById('centerDetailsModal'));
+                    modal.show();
+                })
+                .catch(error => console.error("Error loading Coaching Center details:", error));
+        }
+
+        function updateSelectedCenters(index) {
+            const checkbox = document.getElementById(`compareCheckbox${index}`);
+
+            fetch("centers.json")
+                .then(response => response.json())
+                .then(data => {
+                    const center = data[index];
+                    if (checkbox.checked) {
+                        if (selectedCenters.length < 2) {
+                            selectedCenters.push(center);
+                        } else {
+                            alert("You can only compare two Coaching Centers at a time. Deselect one to select another.");
+                            checkbox.checked = false; // Uncheck the checkbox if limit exceeded
+                        }
+                    } else {
+                        selectedCenters = selectedCenters.filter(item => item !== center);
+                    }
+                    updateComparison(); // Ensure comparison is updated after selection changes
+                })
+                .catch(error => console.error("Error loading comparison data:", error));
+        }
+
+        function updateComparison() {
+            if (selectedCenters.length < 2) {
+                document.getElementById("compare-section").style.display = "none";
+                return;
+            }
+
+            const compareCard1 = document.getElementById("compareCard1");
+            const compareCard2 = document.getElementById("compareCard2");
+
+            compareCard1.innerHTML = `
+                <h4>${selectedCenters[0]['Institute Name'] || 'No Name Available'}</h4>
+                <p>Courses: ${selectedCenters[0]['Courses & Streams'] || 'N/A'}</p>
+                <p>Rating: ${selectedCenters[0]['Reviews & Ratings'] || 'N/A'}</p>
+                <p>Location: ${selectedCenters[0]['Location'] || 'N/A'}</p>
+                <p><a href="${selectedCenters[0]['gmap url']}" target="_blank">View on Google Maps</a></p>
+            `;
+            compareCard2.innerHTML = `
+                <h4>${selectedCenters[1]['Institute Name'] || 'No Name Available'}</h4>
+                <p>Courses: ${selectedCenters[1]['Courses & Streams'] || 'N/A'}</p>
+                <p>Rating: ${selectedCenters[1]['Reviews & Ratings'] || 'N/A'}</p>
+                <p>Location: ${selectedCenters[1]['Location'] || 'N/A'}</p>
+                <p><a href="${selectedCenters[1]['gmap url']}" target="_blank">View on Google Maps</a></p>
+            `;
+
+            document.getElementById("compare-section").style.display = "flex";
+        }
+
+        function showComparison() {
+            if (selectedCenters.length < 2) {
+                alert("Please select two Coaching Centers to compare.");
+            } else {
+                updateComparison();
+            }
+        }
+
+        function deselectAll() {
+            selectedCenters = [];
+            document.querySelectorAll("input[type=checkbox]").forEach(checkbox => {
+                checkbox.checked = false; // Uncheck all checkboxes
+            });
+            document.getElementById("compare-section").style.display = "none"; // Hide comparison section
+        }
+
+        function filterCenters() {
+            const searchInput = document.getElementById('searchBar').value.toLowerCase();
+            const locationFilter = document.getElementById('locationSelect').value;
+            const ratingFilter = document.getElementById('ratingSelect').value;
+            const centerCards = document.querySelectorAll('.coaching-card');
+
+            centerCards.forEach(card => {
+                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                const location = card.getAttribute('data-location');
+                const rating = parseFloat(card.getAttribute('data-rating'));
+
+                const matchesSearch = title.includes(searchInput);
+                const matchesLocation = locationFilter === 'Choose location' || location === locationFilter;
+                const matchesRating = ratingFilter === 'all' || (ratingFilter === '5' && rating === 5) || (ratingFilter === '4' && rating >= 4) || (ratingFilter === '3' && rating >= 3);
+
+                if (matchesSearch && matchesLocation && matchesRating) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function initMap() {
+            const mapOptions = {
+                center: { lat: 15.4668, lng: 75.0149 }, // Centered on Dharwad
+                zoom: 12,
+            };
+            const map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+            centerLocations.forEach(center => {
+                if (center['gmap url']) {
+                    const geocoder = new google.maps.Geocoder();
+                    geocoder.geocode({ 'address': center['Location'] }, (results, status) => {
+                        if (status === 'OK' && results[0]) {
+                            const marker = new google.maps.Marker({
+                                position: results[0].geometry.location,
+                                map: map,
+                                title: center['Institute Name'] || 'No Name Available',
+                            });
+
+                            const infoWindow = new google.maps.InfoWindow({
+                                content: `
+                                    <div>
+                                        <strong>${center['Institute Name'] || 'No Name Available'}</strong><br>
+                                        <a href="${center['gmap url']}" target="_blank">View on Google Maps</a>
+                                    </div>
+                                `,
+                            });
+
+                            marker.addListener('click', () => {
+                                infoWindow.open(map, marker);
+                            });
+                        } else {
+                            console.error('Geocode was not successful for the following reason: ' + status);
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGpRW1wSEHQ1q6-c5bVUYXLAADkBAiflQ&callback=initMap" async defer></script>
+</body>
+</html>
